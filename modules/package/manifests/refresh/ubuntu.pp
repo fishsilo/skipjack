@@ -1,3 +1,3 @@
 class package::refresh::ubuntu {
-    require => Class["package::refresh::apt"]
+    Class["package::refresh::apt"] -> Class["package::refresh::ubuntu"]
 }
