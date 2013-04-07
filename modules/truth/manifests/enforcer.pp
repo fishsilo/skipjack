@@ -1,5 +1,11 @@
 class truth::enforcer {
 
+    stage {
+        "first": before => Stage['main'];
+    }
+
+    include package::refresh
+
     include puppet
 
     # Now conditionally include things based on properties and facts
