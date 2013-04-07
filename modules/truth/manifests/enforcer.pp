@@ -4,7 +4,7 @@ class truth::enforcer {
         "first": before => Stage['main'];
     }
 
-    include package::refresh
+    class { "package::refresh": stage => "first" }
 
     include puppet
 
