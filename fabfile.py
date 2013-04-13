@@ -8,7 +8,7 @@ env.user = 'root'
 fab_dir = os.path.dirname(env.real_fabfile)
 
 def bootstrap():
-    run('apt-get install -q -y ruby1.9.1 git')
+    run('apt-get install -q -y ruby git')
     run('gem install --no-ri --no-rdoc puppet')
     run('git clone git://github.com/fishsilo/skipjack.git')
     provision()
