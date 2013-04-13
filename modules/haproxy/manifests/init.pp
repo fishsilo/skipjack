@@ -7,7 +7,7 @@ class haproxy::package {
 }
 
 class haproxy {
-    require => Class["haproxy::package"]
+    require haproxy::package
 
 }
     
