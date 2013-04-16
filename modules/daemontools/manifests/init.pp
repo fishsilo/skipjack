@@ -24,7 +24,7 @@ class daemontools {
             source => "puppet:///modules/daemontools/skipjack-svscan.upstart.conf";
         "/usr/bin/svscan.skipjack":
             ensure => file,
-            content => template("svscan.skipjack"),
+            content => template("daemontools/svscan.skipjack.erb"),
             mode => 755,
             require => Package["daemontools-run"];
     }
@@ -47,11 +47,11 @@ define daemontools::service ($runfile, $ensure="present")  {
 
     if $ensure == "present" {
         file {
-            "$service_base/$name" {
+            "$service_base/$name":
                 ensure => directory,
                 mode => 755,
                 require => File["$service_base"];
-            "$service_base/$name/run" {
+            "$service_base/$name/run":
                 ensure => file,
                 mode => 755,
                 notify => Daemontools::Service[$name],
@@ -74,14 +74,14 @@ define daemontools::service ($runfile, $ensure="present")  {
 
         exec {
             "daemontools::service restart $name":
-                command => "/usr/bin/svc -t $service_base/$name"
+                command => "/usr/bin/svc -t $service_base/$name",
                 require => Package["daemontools"],
                 refreshonly => true;
         }
     } else {
         exec {
             "daemontools::service kill $name":
-                command => "/usr/bin/svc -dx $service_base/$name"
+                command => "/usr/bin/svc -dx $service_base/$name",
                 require => Package["daemontools"],
                 onlyif => "/usr/bin/svok $service_base/$name";
             "daemontools::servie purge $name":
