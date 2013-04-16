@@ -69,7 +69,7 @@ define daemontools::service ($runfile, $ensure="present")  {
             "$service_base/log/main":
                 ensure => directory,
                 mode => 755,
-                require => File["/$service_base/log"];
+                require => File["$service_base/log"];
         }
 
         exec {
