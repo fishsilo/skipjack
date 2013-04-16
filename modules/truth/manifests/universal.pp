@@ -12,4 +12,5 @@ class truth::universal {
 
     include puppet
     include daemontools
+    include skipjack::refresh
 }

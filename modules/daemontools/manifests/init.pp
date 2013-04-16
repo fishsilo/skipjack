@@ -54,7 +54,7 @@ define daemontools::service ($runfile, $ensure="present")  {
             "$service_base/$name/run":
                 ensure => file,
                 mode => 755,
-                notify => Daemontools::Service[$name],
+                notify => Exec["daemontools::service restart $name"],
                 require => File["$service_base/$name"],
                 source => $runfile;
             "$service_base/log":
