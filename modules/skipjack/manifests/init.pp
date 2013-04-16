@@ -6,5 +6,10 @@ class skipjack {
             ensure => directory,
             mode => 755;
     }
+
+    daemontools::service {
+        "skipjack":
+            runfile => "puppet:///modules/skipjack/services/skipjack";
+    }
 }
         
