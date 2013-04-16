@@ -55,16 +55,16 @@ define daemontools::service ($runfile, $ensure="present")  {
                 ensure => file,
                 mode => 755,
                 notify => Exec["daemontools::service restart $name"],
-                require => File["$service_base/$name"],
+                require => File["$service_base/$name/log/run"],
                 source => $runfile;
             "$service_base/$name/log":
                 ensure => directory,
                 mode => 755,
-                require => File["$service_base"];
+                require => File["$service_base/$name"];
             "$service_base/$name/log/run":
                 ensure => file,
                 mode => 755,
-                require => File["$service_base/$name/log"],
+                require => File["$service_base/$name/log/main"],
                 source => "puppet:///modules/daemontools/log.run";
             "$service_base/$name/log/main":
                 ensure => directory,
