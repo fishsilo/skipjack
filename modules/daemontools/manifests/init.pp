@@ -14,11 +14,29 @@ class daemontools {
     $service_base = "$skipjack::base/services"
 
     file {
-        "/$skipjack::base/services":
+        "$skipjack::base/services":
             ensure => directory,
             mode => 755,
             require => File["/$skipjack::base"];
+        "/etc/init/skipjack-svscan.conf":
+            ensure => file,
+            require => File["/usr/bin/svscan.skipjack"],
+            source => "puppet:///modules/daemontools/skipjack-svscan.upstart.conf";
+        "/usr/bin/svscan.skipjack":
+            ensure => file,
+            content => template("svscan.skipjack"),
+            mode => 755,
+            require => Package["daemontools-run"];
     }
+
+    service {
+        "skipjack-svscan":
+            require => File["/etc/init/skipjack-svscan.conf"],
+            provider => upstart,
+            ensure => running,
+            enable => true;
+    }
+
 }
         
 
