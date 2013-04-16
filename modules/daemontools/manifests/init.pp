@@ -17,7 +17,7 @@ class daemontools {
         "$skipjack::base/services":
             ensure => directory,
             mode => 755,
-            require => File["/$skipjack::base"];
+            require => File["$skipjack::base"];
         "/etc/init/skipjack-svscan.conf":
             ensure => file,
             require => File["/usr/bin/svscan.skipjack"],
