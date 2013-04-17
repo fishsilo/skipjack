@@ -1,2 +1,4 @@
 *.pyc
-.*.swp
+.*.sw*
+/skipjack.yaml
+/modules/truth/manifests/enforcer.pp
