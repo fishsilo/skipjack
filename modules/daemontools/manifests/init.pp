@@ -84,7 +84,7 @@ define daemontools::service ($runfile, $ensure="present")  {
                 command => "/usr/bin/svc -dx $service_base/$name",
                 require => Package["daemontools"],
                 onlyif => "/usr/bin/svok $service_base/$name";
-            "daemontools::servie purge $name":
+            "daemontools::service purge $name":
                 command => "/bin/rm -r -f $service_base/$name",
                 require => [Package["daemontools"],Exec["daemontools::service kill $name"]],
                 onlyif => "[ -d '$service_base/$name' ]";
