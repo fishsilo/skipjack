@@ -90,11 +90,16 @@ def find_config():
     for dirpath, dirnames, filenames in os.walk("."):
         if MAIN_CONFIG_FILE in filenames:
             return os.path.join(dirpath, MAIN_CONFIG_FILE)
+    return None
 
 
 def setup():
-    config = load_yaml(find_config())
-    module_path = config["module_path"]
+    config_file = find_config()
+    if config_file:
+        config = load_yaml(config_file)
+        module_path = config["module_path"]
+    else:
+        module_path = []
     roles = defaultdict(list)
     for mod_dir in chain(*imap(find_external_modules, module_path)):
         mod_name = get_mod_name(mod_dir)
