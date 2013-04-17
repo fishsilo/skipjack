@@ -8,4 +8,7 @@ fi
 
 export FACTER_server_tags
 
+source ENV/bin/activate
+pip -q install -r requirements.txt
+./destiny.py setup
 puppet apply $* --modulepath ./modules manifests/site.pp
