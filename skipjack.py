@@ -2,51 +2,49 @@
 """Skipjack
 
 Usage:
-    skipjack config [options]
-    skipjack list
-    skipjack init <host>
-    skipjack run <host>
+    skipjack bootstrap [options] (--hosts=<hosts>|--vagrant)
+    skipjack provision (--hosts=<hosts>|--vagrant)
 
 Options:
-    --api-key <key>     Linode API key
+    --config-file=<file>    Path to config file (local unless --config-repo is given)
+    --config-repo=<repo>    URL of repo with config file
+    --key-file=<file>       Local path to key file
+    --secret-dir=<dir>      Local directory with files encrypted by the key
+    --secret-repo=<repo>    URL of repo with files encrypted by the key
 """
 
 import os
-import shelve
+import subprocess
 import sys
-from pprint import pprint
 
 from docopt import docopt
-from linode import api as linode_api
 
-args = None
+def init_fab_args(opts):
+  if opts["--vagrant"]:
+    return ["./fab-vagrant"]
+  else:
+    return ["fab", "-H", opts["--hosts"]]
 
-SHELF_PATH = os.path.join(os.environ.get("HOME"), ".skipjack")
+def task_opt(i_opts, i_name, o_opts, o_name):
+  if i_opts[i_name]:
+    o_opts.append("%s=%s" % (o_name, i_opts[i_name]))
 
-l_api = api.Api(API_KEY)
-linodes = l_api.linode_list()
+def bootstrap_task(opts):
+  task_opts = []
+  task_opt(opts, "--config-file", task_opts, "config_file")
+  task_opt(opts, "--config-repo", task_opts, "config_repo")
+  task_opt(opts, "--key-file", task_opts, "key_file")
+  task_opt(opts, "--secret-dir", task_opts, "secret_dir")
+  task_opt(opts, "--secret-repo", task_opts, "secret_repo")
+  return "bootstrap:%s" % ",".join(task_opts)
 
-for linode in linodes:
-    ips = l_api.linode_ip_list(LinodeID=linode['LINODEID'])
-    pprint(ips)
-
-
-def linode_list(api):
-    return api.linode_list()
-
-
-def console():
-    global args
-    args = docopt(__doc__)
-
-    shelf = shelve.open(SHELF_PATH)
-
-    linode_api_key = shelf.get('LINODE_API_KEY')
-    if not linode_api_key:
-        pass
-
-
-    api = linde_api.Api(
+def main(opts):
+  fab_args = init_fab_args(opts)
+  if opts["bootstrap"]:
+      fab_args.append(bootstrap_task(opts))
+  elif opts["provision"]:
+      fab_args.append("provision")
+  subprocess.check_call(fab_args, close_fds=True)
 
 if __name__ == "__main__":
-    console()
+    main(docopt(__doc__))
