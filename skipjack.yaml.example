@@ -1,2 +1,2 @@
-module_path:
-  - ../foo
+module_repos:
+  - git://github.com/fishsilo/example

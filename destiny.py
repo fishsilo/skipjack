@@ -4,9 +4,11 @@ from collections import defaultdict
 from itertools import chain, imap
 import os
 import os.path
+import shutil
 import stat
 import subprocess
 import sys
+import tempfile
 import yaml
 
 MAIN_CONFIG_FILE = "skipjack.yaml"
@@ -14,6 +16,8 @@ MAIN_CONFIG_FILE = "skipjack.yaml"
 MODULE_CONFIG_FILE = "module.yaml"
 
 ENFORCER_PATH = "modules/truth/manifests/enforcer.pp"
+
+REPO_CLONES = []
 
 
 class ConfigError(ValueError):
@@ -86,6 +90,33 @@ def goto_repo_root():
              ["git", "rev-parse", "--show-toplevel"]).rstrip())
 
 
+def clone_repo(thing):
+    if type(thing) is str:
+        url = thing
+        branch = None
+    elif type(thing) is dict:
+        url = thing["url"]
+        branch = thing["branch"]
+    else:
+        raise ConfigError("Invalid repo specification")
+    d = tempfile.mkdtemp(prefix="destiny")
+    REPO_CLONES.append(d)
+    r = os.path.join(d, "repo")
+    args = ["git", "clone"]
+    if branch:
+        args.append("--branch")
+        args.append(branch)
+    args.append(url)
+    args.append(r)
+    subprocess.check_call(args, close_fds=True)
+    return r
+
+
+def delete_clones():
+    for d in REPO_CLONES:
+        shutil.rmtree(d, True)
+
+
 def find_config():
     for dirpath, dirnames, filenames in os.walk("."):
         if MAIN_CONFIG_FILE in filenames:
@@ -97,9 +128,10 @@ def setup():
     config_file = find_config()
     if config_file:
         config = load_yaml(config_file)
-        module_path = config["module_path"]
+        module_repos = config["module_repos"]
     else:
-        module_path = []
+        module_repos = []
+    module_path = imap(clone_repo, module_repos)
     roles = defaultdict(list)
     for mod_dir in chain(*imap(find_external_modules, module_path)):
         mod_name = get_mod_name(mod_dir)
