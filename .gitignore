@@ -3,3 +3,5 @@
 /skipjack.yaml
 /modules/truth/manifests/enforcer.pp
 /ENV/
+/.vagrant_ssh_config
+/.vagrant/
