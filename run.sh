@@ -3,7 +3,7 @@
 set -e
 
 SECRETS="secrets.sh"
-./gen-secrets.sh >"$SECRETS"
+./gen-secrets.sh ../secrets.key ../secrets.d >"$SECRETS"
 source "$SECRETS"
 
 if [ -z "$FACTER_server_tags" ]; then

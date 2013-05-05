@@ -16,5 +16,6 @@ TMPL="export FACTER_secret_%s='%s'"
 
 for i in $(find "$SECRETS_DIR" -name '*.bfe'); do
   printf "$TMPL" "$(var_name "$i")" "$(cat "$KEY_FILE" | bcrypt -o "$i" 2>/dev/null)"
+  echo
 done
 

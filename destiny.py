@@ -11,7 +11,7 @@ import sys
 import tempfile
 import yaml
 
-MAIN_CONFIG_FILE = "provision.yaml"
+MAIN_CONFIG_FILE = "../provision.yaml"
 
 MODULE_CONFIG_FILE = "module.yaml"
 
@@ -118,19 +118,18 @@ def delete_clones():
 
 
 def find_config():
-    for dirpath, dirnames, filenames in os.walk("."):
-        if MAIN_CONFIG_FILE in filenames:
-            return os.path.join(dirpath, MAIN_CONFIG_FILE)
+    if os.path.isfile(MAIN_CONFIG_FILE):
+        return MAIN_CONFIG_FILE
     return None
 
 
 def setup():
+    module_repos = []
     config_file = find_config()
     if config_file:
         config = load_yaml(config_file)
-        module_repos = config["module_repos"]
-    else:
-        module_repos = []
+        if config and "module_repos" in config:
+            module_repos = config["module_repos"]
     module_path = imap(clone_repo, module_repos)
     roles = defaultdict(list)
     for mod_dir in chain(*imap(find_external_modules, module_path)):
