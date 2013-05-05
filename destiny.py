@@ -11,7 +11,7 @@ import sys
 import tempfile
 import yaml
 
-MAIN_CONFIG_FILE = "skipjack.yaml"
+MAIN_CONFIG_FILE = "provision.yaml"
 
 MODULE_CONFIG_FILE = "module.yaml"
 

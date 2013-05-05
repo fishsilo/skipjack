@@ -1,0 +1,6 @@
+provision:
+  file: provision.yaml
+  repo: git://github.com/fishsilo/example
+secrets:
+  key_file: secrets.key
+  dir: secrets

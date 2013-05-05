@@ -2,10 +2,6 @@
 TODO
 ====
 
-Configure skipjack.py with a bootstrap.yaml file instead of the command-line
-
-Decode the secrets at provisioning into a single secrets.sh that defines facter vars
-
 Figure out how to put an entry in /etc/hosts mapping the public IP to the domain
 
 Make a gitblit module

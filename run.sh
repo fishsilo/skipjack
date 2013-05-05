@@ -2,6 +2,10 @@
 
 set -e
 
+SECRETS="secrets.sh"
+./gen-secrets.sh >"$SECRETS"
+source "$SECRETS"
+
 if [ -z "$FACTER_server_tags" ]; then
     FACTER_server_tags="nil"
 fi
