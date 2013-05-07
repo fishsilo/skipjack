@@ -1,5 +1,7 @@
 *.pyc
 .*.sw*
+/bootstrap.y*ml
+/provision.y*ml
 /skipjack.yaml
 /modules/truth/manifests/enforcer.pp
 /ENV/

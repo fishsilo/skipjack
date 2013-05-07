@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
 set -e
-CONF="$PWD/.vagrant_ssh_config"
-if [ ! -e "$CONF" ]; then
-  vagrant ssh-config > "$CONF"
-fi
+set -x
+CONF=$(vagrant ssh-config)
 function field {
-  cat "$CONF" | grep "$1 " | awk '{print $2}' | tr -d '"'
+  grep "$1 " <<<"$CONF" | awk '{print $2}' | tr -d '"'
 }
 exec fab \
   --no_agent \
