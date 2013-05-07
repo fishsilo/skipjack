@@ -2,13 +2,12 @@
 """Skipjack
 
 Usage:
-    skipjack bootstrap --config=<file> (--hosts=<hosts>|--vagrant)
+    skipjack bootstrap (--hosts=<hosts>|--vagrant) [--key=<file>] [<repo>]
     skipjack provision (--hosts=<hosts>|--vagrant)
 """
 
 import os
 import subprocess
-import sys
 
 from docopt import docopt
 
@@ -21,13 +20,13 @@ def init_fab_args(opts):
 
 
 def bootstrap_task(opts):
-    if "--config" in opts:
-        return "bootstrap:config=%s" % opts["--config"]
-    else:
-        return "bootstrap"
+    repo = opts["<repo>"] or ""
+    key_file = opts["--key"] or ""
+    return "bootstrap:%s,%s" % (repo, key_file)
 
 
 def main(opts):
+    print(opts)
     fab_args = init_fab_args(opts)
     if opts["bootstrap"]:
         fab_args.append(bootstrap_task(opts))

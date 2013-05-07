@@ -2,86 +2,72 @@
 
 import os.path
 import tempfile
-import yaml
+import shutil
 from fabric.api import *
 
 env.user = 'root'
 
 fab_dir = os.path.dirname(env.real_fabfile)
 
-LOCAL_CONFIG_FILE = "bootstrap.yaml"
-ROOT = "skipjack"
-CONFIG_FILE = "provision.yaml"
-CONFIG_REPO = "provision.yaml.d"
-KEY_FILE = "secrets.key"
-SECRET_REPO = "secrets.d"
-SECRET_TARBALL = SECRET_REPO + ".tar.gz"
+
+CLONE_ADDRESS = "127.0.0.1"
+CLONE_PORT = 8149
+CLONE_DIR = "skipjack-config.git"
 
 
-def load_yaml(path):
-    with open(path, "r") as handle:
-        return yaml.safe_load(handle)
+KEY = None
 
 
-def _get_config(config=None):
-    config_file = config.get("file", CONFIG_FILE)
-    config_repo = config.get("repo")
-    if config_repo:
-        run('git clone %s %s' % (config_repo, CONFIG_REPO))
-        run('cp %s/%s %s' % (CONFIG_REPO, config_file, CONFIG_FILE))
+def get_key(path):
+    global KEY
+    if path == "":
+        KEY = prompt("Decryption key?").strip()
     else:
-        put(local_path=config_file, remote_path=CONFIG_FILE)
+        with open(path, "r") as key_file:
+            KEY = key_file.read().strip()
 
 
-def _get_secrets(config=None):
-    key_file = config.get("key_file")
-    secret_dir = config.get("dir")
-    secret_repo = config.get("repo")
-    if not key_file:
-        return
-    if not (secret_dir or secret_repo):
-        return
-    if secret_dir and secret_repo:
-        return
-    if secret_repo:
-        run('git clone %s %s' % (secret_repo, SECRET_REPO))
-    else:
-        (fd, temp) = tempfile.mkstemp(prefix=SECRET_REPO, suffix=".tar.gz")
-        os.close(fd)
-        local('cd %s && tar -czf %s *' % (secret_dir, temp))
-        put(local_path=temp, remote_path=SECRET_TARBALL)
-        run('mkdir -p %s' % SECRET_REPO)
-        with cd(SECRET_REPO):
-            run('tar -xzf ../%s' % SECRET_TARBALL)
-    put(local_path=key_file, remote_path=KEY_FILE)
-    # run("""for i in $(find %s -name '*.bfe'); do cat %s | bcrypt "$i"; done""" %
-    #    (SECRET_REPO, KEY_FILE))
+def put_key():
+    with shell_env(KEY=KEY):
+        run("""cat - <<<"$KEY" >secret_key""")
+        run("chmod 600 secret_key")
 
 
-def bootstrap(config=LOCAL_CONFIG_FILE):
-    run('mkdir -p %s' % ROOT)
-    with cd(ROOT):
-        config = load_yaml(config)
-        run('apt-get install -q -y ruby git python-pip bcrypt')
-        _get_config(config["provision"])
-        _get_secrets(config["secrets"])
-        run('pip -q install virtualenv')
-        run('gem install --no-ri --no-rdoc puppet')
-        run('git clone git://github.com/fishsilo/skipjack.git')
-        with cd('skipjack'):
-            run('virtualenv ENV')
+def clone_local_config(repo):
+    git_daemon = subprocess.Popen([
+        "git", "daemon",
+        "--strict-paths", "--export-all", "--base-path=" + repo,
+        "--listen=127.0.0.1", "--port=" + CLONE_PORT, repo])
+    try:
+        with remote_tunnel(CLONE_PORT, remote_bind_address=CLONE_ADDRESS):
+            run("git clone git://%s:%s/ %s" %
+                    (CLONE_ADDRESS, CLONE_PORT, CLONE_DIR))
+            return CLONE_DIR
+    finally:
+        git_daemon.terminate()
+
+
+def bootstrap(repo, key_file):
+    get_key(key_file)
+    if repo and repo.startswith("/"):
+        repo = clone_local_config(repo)
+    run('apt-get install -q -y ruby git python-pip bcrypt')
+    run('pip -q install virtualenv')
+    run('gem install --no-ri --no-rdoc puppet')
+    run('git clone git://github.com/fishsilo/skipjack.git')
+    with cd('skipjack'):
+        put_key()
+        run('virtualenv ENV')
+        if repo:
+            run('mkdir -p repos')
+            with cd('repos'):
+                run('git clone %s config' % repo)
     provision()
 
 
 def provision():
-    with cd(ROOT):
-        with cd('skipjack'):
-            run('git fetch')
-            run('git reset --hard origin/master')
-            # TODO fetch in all other repos originally cloned by
-            # skipjack/destiny
-            run('./run.sh')
+    with cd('skipjack'):
+        run('./git-obliterate.sh .')
+        run('./run.sh')
 
 
-def echo(message="Hello, world!"):
-    run("""echo '%s'""" % message)
