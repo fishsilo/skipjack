@@ -8,7 +8,13 @@ class truth::universal {
         "first": before => Stage['main'];
     }
 
-    class { "package::refresh": stage => "first" }
+    class {
+        "devil_ray":
+            stage => "first";
+        "package::refresh":
+            stage => "first",
+            require => Class["devil_ray"]
+    }
 
     include puppet
     include daemontools
