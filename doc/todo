@@ -2,13 +2,11 @@
 TODO
 ====
 
+Add an option for testing changes in development
+
+Enable passing parameters into a class via the config file
+
+Add an option supported by destiny.py in module.yaml that makes a module universal
+
 Figure out how to put an entry in /etc/hosts mapping the public IP to the domain
-
-Make a gitblit module
-
-  Fix the debian package to make the gitblit script executable
-
-  Add daemontools thingy to run gitblit
-
-  Configure haproxy
 

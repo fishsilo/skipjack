@@ -3,6 +3,7 @@
 import os.path
 import tempfile
 import shutil
+from subprocess import check_output, Popen
 from fabric.api import *
 
 env.user = 'root'
@@ -34,7 +35,7 @@ def put_key():
 
 
 def clone_local_config(repo):
-    git_daemon = subprocess.Popen([
+    git_daemon = Popen([
         "git", "daemon",
         "--strict-paths", "--export-all", "--base-path=" + repo,
         "--listen=127.0.0.1", "--port=" + CLONE_PORT, repo])
@@ -47,6 +48,10 @@ def clone_local_config(repo):
         git_daemon.terminate()
 
 
+def pick_source():
+    return check_output(["./pick-source.sh"])
+
+
 def bootstrap(repo, key_file):
     get_key(key_file)
     if repo and repo.startswith("/"):
@@ -54,7 +59,8 @@ def bootstrap(repo, key_file):
     run('apt-get install -q -y ruby git python-pip bcrypt')
     run('pip -q install virtualenv')
     run('gem install --no-ri --no-rdoc puppet')
-    run('git clone git://github.com/fishsilo/skipjack.git')
+    branch = pick_source()
+    run("git clone -b '%s' git://github.com/fishsilo/skipjack.git" % branch)
     with cd('skipjack'):
         put_key()
         run('virtualenv ENV')
@@ -62,12 +68,13 @@ def bootstrap(repo, key_file):
             run('mkdir -p repos')
             with cd('repos'):
                 run('git clone %s config' % repo)
-    provision()
+    provision(fresh=True)
 
 
-def provision():
+def provision(fresh=False):
     with cd('skipjack'):
-        run('./git-obliterate.sh .')
+        if not fresh:
+            run("./git-obliterate.sh . '%s'" % pick_source())
         run('./run.sh')
 
 
