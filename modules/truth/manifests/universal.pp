@@ -13,10 +13,13 @@ class truth::universal {
             stage => "first";
         "package::refresh":
             stage => "first",
-            require => Class["devil_ray"]
+            require => Class["devil_ray"];
     }
 
+    include devil_ray
     include puppet
     include daemontools
     include skipjack::refresh
+
+    hiera_include("classes")
 }

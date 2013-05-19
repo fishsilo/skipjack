@@ -2,17 +2,16 @@
 
 set -e
 
-if [ -z "$FACTER_server_tags" ]; then
-    FACTER_server_tags="nil"
-fi
-
-export FACTER_server_tags
-
 source ENV/bin/activate
 pip -q install -r requirements.prod.txt
-if [ -d repos/config ]; then
-  ./git-obliterate.sh repos/config
+if [ -d config ]; then
+  ./git-obliterate.sh config
 fi
-./destiny.py setup
 ./decrypt.sh
-puppet apply $* --modulepath ./modules manifests/site.pp
+
+SKIPJACK="$PWD"
+cd config
+puppet apply $* \
+  --modulepath "modules:$SKIPJACK/modules" \
+  --confdir . \
+  "$SKIPJACK/manifests/site.pp"

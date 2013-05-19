@@ -7,20 +7,10 @@ fi
 cd "$1"
 
 if [ -n "$2" ]; then
-  REMOTE_NAME="$(\
-    git config --get-regexp 'remote\..*\.url' | \
-    grep -F "$2" | \
-    awk '{print $1}' | \
-    awk -F '.' '{print $2}')"
-else
-  REMOTE_NAME="origin"
-fi
-
-if [ -n "$3" ]; then
-  REMOTE_BRANCH_NAME="$3"
+  REMOTE_BRANCH_NAME="$2"
 else
   REMOTE_BRANCH_NAME="master"
 fi
 
 git fetch
-git reset --hard "$REMOTE_NAME/$REMOTE_BRANCH_NAME"
+git reset --hard "origin/$REMOTE_BRANCH_NAME"

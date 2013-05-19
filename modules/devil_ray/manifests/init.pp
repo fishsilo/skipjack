@@ -1,15 +1,14 @@
-class devil_ray {
+class devil_ray ($key_id, $key_file) {
 
   $root = "/opt/devil_ray"
-  $config = "$root/s3.yaml"
 
   exec {
     "clone":
-      command => "git clone git://github.com/fishsilo/devil_ray.git $root",
+      command => "/usr/bin/git clone git://github.com/fishsilo/devil_ray.git $root",
       creates => "$root";
     "pull":
       cwd => "$root",
-      command => "git pull",
+      command => "/usr/bin/git pull",
       require => Exec["clone"];
   }
 
@@ -23,13 +22,16 @@ class devil_ray {
       mode => "644",
       require => Exec["pull"];
     "config":
-      path => "$config",
-      ensure => "file";
+      ensure => "file",
+      path => "$root/s3.yaml",
+      content => template("devil_ray/config.erb"),
+      mode => "644",
+      require => Exec["pull"];
   }
 
   service {
     "devil_ray":
-      require => File["service", "$root/s3.yaml"],
+      require => File["service", "config"],
       ensure => "running",
       enable => true
   }

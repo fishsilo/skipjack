@@ -2,7 +2,7 @@
 set -e
 
 KEY_FILE="secret_key"
-SECRETS_DIR="repos"
+SECRETS_DIR="config"
 
 if [ ! -f "$KEY_FILE" ]; then
   echo "No $KEY_FILE; skipping decryption step."
@@ -14,7 +14,7 @@ if [ ! -d "$SECRETS_DIR" ]; then
   exit 0
 fi
 
-for i in $(find repos -name '*.bfe'); do
+for i in $(find "$SECRETS_DIR" -name '*.bfe'); do
   cat secret_key | bcrypt "$i" 2>/dev/nul
 done
 

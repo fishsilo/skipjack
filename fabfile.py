@@ -54,7 +54,7 @@ def pick_source():
 
 def bootstrap(repo, key_file):
     get_key(key_file)
-    if repo and repo.startswith("/"):
+    if repo.startswith("/"):
         repo = clone_local_config(repo)
     run('apt-get install -q -y ruby git python-pip bcrypt')
     run('pip -q install virtualenv')
@@ -64,10 +64,7 @@ def bootstrap(repo, key_file):
     with cd('skipjack'):
         put_key()
         run('virtualenv ENV')
-        if repo:
-            run('mkdir -p repos')
-            with cd('repos'):
-                run('git clone %s config' % repo)
+        run('git clone %s config' % repo)
     provision(fresh=True)
 
 

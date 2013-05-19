@@ -2,7 +2,7 @@
 """Skipjack
 
 Usage:
-    skipjack bootstrap (--hosts=<hosts>|--vagrant) [--key=<file>] [<repo>]
+    skipjack bootstrap (--hosts=<hosts>|--vagrant) [--key=<file>] <repo>
     skipjack provision (--hosts=<hosts>|--vagrant)
 """
 
@@ -20,7 +20,7 @@ def init_fab_args(opts):
 
 
 def bootstrap_task(opts):
-    repo = opts["<repo>"] or ""
+    repo = opts["<repo>"]
     key_file = opts["--key"] or ""
     return "bootstrap:%s,%s" % (repo, key_file)
 

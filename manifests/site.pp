@@ -1,3 +1,3 @@
 node default {
-  include truth::enforcer
+  include truth::universal
 }
