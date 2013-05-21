@@ -1,6 +1,7 @@
 class devil_ray ($key_id, $key_file) {
 
   $root = "/opt/devil_ray"
+  $key_path = "$root/s3.priv"
 
   exec {
     "clone":
@@ -17,9 +18,13 @@ class devil_ray ($key_id, $key_file) {
       ensure => "file",
       path => "/etc/init/devil_ray.conf",
       source => "puppet:///modules/devil_ray/devil_ray.conf",
-      owner => "root",
-      group => "root",
       mode => "644",
+      require => Exec["pull"];
+    "secret_key":
+      ensure => "file",
+      path => $key_path,
+      source => $key_file,
+      mode => "600",
       require => Exec["pull"];
     "config":
       ensure => "file",
@@ -31,7 +36,7 @@ class devil_ray ($key_id, $key_file) {
 
   service {
     "devil_ray":
-      require => File["service", "config"],
+      subscribe => File["service", "secret_key", "config"],
       ensure => "running",
       enable => true
   }
