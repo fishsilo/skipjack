@@ -1,24 +1,24 @@
 class gitblit ($users_file) {
 
-  $version = "1.2.1"
-  $root = "/opt/gitblit/$version"
+  $root = "/opt/gitblit/1.2.1"
   $runfile = "$root/runfile.sh"
-  
+  $data = "/srv/gitblit"
+ 
   package {
     "gitblit":
-      ensure => $version;
+      ensure => "latest";
   }
 
   file {
     "users":
-      path => "$root/data/users.conf",
+      path => "$data/users.conf",
       ensure => "file",
       source => $users_file,
       require => Package["gitblit"];
     "runfile":
       path => $runfile,
       ensure => "file",
-      content => template("gitblit/runfile.sh"),
+      mode => "0755",
       require => Package["gitblit"];
   }
 
@@ -26,7 +26,7 @@ class gitblit ($users_file) {
     "gitblit":
       runfile => $runfile,
       ensure => "present",
-      require => File["users"];
+      require => [File["users", "runfile"], Package["gitblit"]];
   }
 
 }
