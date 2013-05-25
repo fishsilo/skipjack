@@ -2,3 +2,5 @@
 TODO
 ====
 
+Add http://127.0.0.1:8333/whatever to /etc/apt/source.list
+
