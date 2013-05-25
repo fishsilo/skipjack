@@ -49,6 +49,7 @@ class gitblit ($users_file, $prop_file) {
       require => File[$data];
     $runfile:
       ensure => "file",
+      content => template("gitblit/runfile.sh"),
       mode => "0755",
       require => Package["gitblit"];
   }
