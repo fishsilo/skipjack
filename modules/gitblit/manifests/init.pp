@@ -18,7 +18,7 @@ class gitblit ($users_file, $prop_file) {
       ensure => "present",
       system => "true",
       home => $data,
-      group => $group,
+      gid => $group,
       require => Group[$group];
   }
 
