@@ -9,14 +9,14 @@ class truth::universal {
     }
 
     class {
-        "devil_ray":
-            stage => "first";
+      #"devil_ray":
+      #      stage => "first";
         "package::refresh":
             stage => "first",
             require => Class["devil_ray"];
     }
 
-    include devil_ray
+    #include devil_ray
     include puppet
     include daemontools
     include skipjack::refresh
