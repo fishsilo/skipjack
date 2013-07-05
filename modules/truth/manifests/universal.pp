@@ -12,8 +12,8 @@ class truth::universal {
       #"devil_ray":
       #      stage => "first";
         "package::refresh":
-            stage => "first",
-            require => Class["devil_ray"];
+            stage => "first";
+          #require => Class["devil_ray"];
     }
 
     #include devil_ray
